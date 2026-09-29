@@ -109,11 +109,9 @@ Aplikasi ini menggunakan Proxmox API Token untuk otentikasi aman tanpa perlu men
 Buka terminal/PowerShell di komputer Anda, lalu jalankan perintah berikut:
 
 ```bash
-git clone https://github.com/USERNAME/proxmox-web-manager.git
+git https://github.com/Gitkamal123/proxmox-web-manager.git
 cd proxmox-web-manager
 ```
-*(Ganti `USERNAME` dengan username GitHub Anda).*
-
 ---
 
 ### 2. Setup dan Jalankan Backend
@@ -176,7 +174,7 @@ cd proxmox-web-manager
    npm run dev
    ```
 
-4. Terminal akan menampilkan tautan lokal aplikasi (biasanya `http://localhost:5173`). Buka URL tersebut di browser Anda.
+4. Terminal akan menampilkan tautan lokal aplikasi (biasanya `http://localhost:5173`). Buka URL tersebut di browser.
 
 ---
 
