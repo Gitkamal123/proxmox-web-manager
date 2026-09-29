@@ -109,7 +109,7 @@ Aplikasi ini menggunakan Proxmox API Token untuk otentikasi aman tanpa perlu men
 Buka terminal/PowerShell di komputer Anda, lalu jalankan perintah berikut:
 
 ```bash
-git https://github.com/Gitkamal123/proxmox-web-manager.git
+git clone https://github.com/Gitkamal123/proxmox-web-manager.git
 cd proxmox-web-manager
 ```
 ---
@@ -239,14 +239,6 @@ pm2 startup
 
 ---
 
-## Keamanan
-
-- **Jaga Kerahasiaan Kredensial:** Jangan pernah membagikan atau mengunggah file `.env` ke publik. File `.gitignore` sudah otomatis mengecualikan file `.env`.
-- **Prinsip Hak Akses Minimal (Least Privilege):** Buat user atau API token khusus dengan hak akses terbatas sesuai kebutuhan daripada menggunakan token tanpa batas.
-- **Jaringan Terisolasi:** Disarankan untuk mengakses aplikasi ini di dalam jaringan lokal (LAN) atau melalui koneksi VPN terenkripsi (misalnya WireGuard atau Tailscale).
-
----
-
 ## Lisensi
 
-Proyek ini dirilis di bawah lisensi [MIT](https://opensource.org/licenses/MIT). Anda bebas menggunakan, memodifikasi, dan mendistribusikan kode ini sesuai dengan ketentuan lisensi.
+Proyek ini dirilis di bawah lisensi [MIT](LICENSE).
