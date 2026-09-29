@@ -1,6 +1,25 @@
-# Proxmox Web Management
+# Proxmox Web Manager
 
-Aplikasi web modern dan ringan untuk memonitor dan mengelola server Proxmox VE (Virtual Environment). Dilengkapi dengan visualisasi statistik real-time, manajemen VM/LXC, serta dukungan konsol interaktif (xterm.js & noVNC).
+Aplikasi web modern, responsif, dan ringan untuk memonitor serta mengelola infrastruktur server Proxmox VE (Virtual Environment). Dilengkapi dengan telemetri cluster real-time, manajemen siklus daya VM/LXC, serta konsol interaktif berbasis web (xterm.js dan noVNC).
+
+---
+
+## Daftar Isi
+
+- [Fitur Utama](#fitur-utama)
+- [Teknologi yang Digunakan](#teknologi-yang-digunakan)
+- [Struktur Direktori](#struktur-direktori)
+- [Prasyarat Sistem](#prasyarat-sistem)
+- [Persiapan API Token Proxmox VE](#persiapan-api-token-proxmox-ve)
+- [Panduan Instalasi Lengkap](#panduan-instalasi-lengkap)
+  - [1. Clone Repository](#1-clone-repository)
+  - [2. Setup dan Jalankan Backend](#2-setup-dan-jalankan-backend)
+  - [3. Setup dan Jalankan Frontend](#3-setup-dan-jalankan-frontend)
+- [Panduan Penggunaan](#panduan-penggunaan)
+- [Deployment Produksi (Opsional)](#deployment-produksi-opsional)
+- [Troubleshooting & Solusi](#troubleshooting--solusi)
+- [Keamanan](#keamanan)
+- [Lisensi](#lisensi)
 
 ---
 
@@ -9,113 +28,227 @@ Aplikasi web modern dan ringan untuk memonitor dan mengelola server Proxmox VE (
 - **Cluster & Node Telemetry:** Monitoring penggunaan CPU, RAM, disk, load average, dan status node secara real-time.
 - **Manajemen VM & Container (LXC):** Kontrol siklus daya (Start, Shutdown, Stop, Reboot) untuk Virtual Machine (QEMU) dan Container (LXC).
 - **Multi-Window Remote Console:**
-  - **noVNC Console:** Tampilan desktop grafis langsung dari browser.
-  - **xterm.js Terminal:** Akses shell terminal berbasis web yang cepat dan responsif.
-  - **Window Workspace:** Dukungan floating window yang dapat dipindah, diatur ukurannya, dan diminimalkan.
-- **Antarmuka Modern:** Tampilan gelap (dark mode) responsif berbasis Tailwind CSS.
-- **Konfigurasi Host Dinamis:** Dukungan pemilihan dan penyimpanan host backend langsung dari antarmuka login.
+  - **noVNC Console:** Akses display desktop grafis VM langsung dari browser tanpa instalasi software tambahan.
+  - **xterm.js Terminal:** Shell terminal berbasis web yang cepat dan responsif untuk container/node.
+  - **Window Workspace:** Tampilan jendela konsol floating yang dapat dipindahkan, diubah ukurannya (resizable), dan diminimalkan.
+- **Konfigurasi Host Dinamis:** Pemilihan dan penyimpanan alamat host backend langsung dari antarmuka web.
+- **Tampilan Gelap Modern:** Antarmuka responsif bernuansa dark mode yang nyaman untuk penggunaan jangka panjang.
 
 ---
 
-## Struktur Proyek
+## Teknologi yang Digunakan
+
+- **Frontend:**
+  - React 19
+  - Vite
+  - Tailwind CSS
+  - Lucide React (Ikon)
+  - Recharts (Visualisasi grafik metrik)
+  - @novnc/novnc (Display remote desktop)
+  - @xterm/xterm (Terminal interaktif)
+- **Backend:**
+  - Node.js & Express
+  - Socket.IO & WebSocket (`ws`) untuk bridge noVNC/xterm
+  - Axios (Komunikasi ke REST API Proxmox VE)
+
+---
+
+## Struktur Direktori
 
 ```text
-proxmox-web-management/
+proxmox-web-manager/
 ├── backend/
 │   ├── .env.example       # Template konfigurasi environment backend
-│   ├── package.json       # Dependensi backend (Express, Socket.IO, ws)
-│   └── server.js          # API proxy, WebSocket bridge (noVNC & xterm)
+│   ├── package.json       # Daftar dependensi backend
+│   └── server.js          # API gateway & WebSocket proxy (noVNC & xterm)
 ├── frontend/
-│   ├── package.json       # Dependensi frontend (React, Vite, Tailwind CSS)
-│   ├── src/               # Kode sumber antarmuka React
-│   └── vite.config.js     # Konfigurasi Vite bundler
-└── README.md
+│   ├── package.json       # Daftar dependensi frontend
+│   ├── public/            # File aset statis
+│   ├── src/               # Kode sumber aplikasi React
+│   │   ├── App.jsx        # Komponen utama & dashboard
+│   │   ├── ConsoleWindow.jsx   # Komponen konsol xterm & noVNC
+│   │   ├── ConsoleWorkspace.jsx# Workspace multi-window
+│   │   ├── LoginPage.jsx  # Halaman login & pemilihan host
+│   │   └── config.js      # Konfigurasi koneksi & storage
+│   ├── index.html         # Template HTML utama
+│   └── vite.config.js     # Konfigurasi bundler Vite
+├── .gitignore             # Pengabaian file sensitif (env, node_modules, dll.)
+└── README.md              # Dokumentasi proyek
 ```
 
 ---
 
-## Prasyarat
+## Prasyarat Sistem
 
-Sebelum menjalankan aplikasi, pastikan Anda telah menginstal:
-- **Node.js** (versi 18 ke atas disarankan)
-- **npm** atau package manager sejenis
-- Akses ke server **Proxmox VE** dengan API Token yang valid
-
----
-
-## Panduan Instalasi & Menjalankan
-
-### 1. Konfigurasi Backend
-
-Masuk ke folder `backend`:
-```bash
-cd backend
-npm install
-```
-
-Salin template file `.env.example` menjadi `.env`:
-```bash
-cp .env.example .env
-```
-
-Buka file `.env` dan sesuaikan dengan konfigurasi Proxmox Anda:
-```env
-PORT=5000
-PVE_URL=https://<IP_PROXMOX>:8006
-PVE_TOKEN=PVEAPIToken=root@pam!<TOKEN_ID>=<TOKEN_SECRET>
-```
-
-Jalankan backend server:
-```bash
-# Mode development (auto-reload)
-npm run dev
-
-# Atau mode produksi
-npm start
-```
-Backend akan berjalan di port `5000` (atau port sesuai konfigurasi file `.env`).
+Pastikan perangkat Anda telah memenuhi kebutuhan berikut:
+1. **Node.js** versi 18.x atau yang lebih baru (disarankan versi LTS).
+2. **npm** (biasanya terpasang otomatis bersama Node.js).
+3. **Git** terinstal di perangkat lokal.
+4. Server **Proxmox VE** (versi 7.x / 8.x) yang dapat dijangkau melalui jaringan (IP lokal, VPN, atau Tailscale).
 
 ---
 
-### 2. Konfigurasi Frontend
+## Persiapan API Token Proxmox VE
 
-Buka terminal baru dan masuk ke folder `frontend`:
-```bash
-cd frontend
-npm install
-```
+Aplikasi ini menggunakan Proxmox API Token untuk otentikasi aman tanpa perlu mengekspos kata sandi akun root:
 
-Jalankan server development:
-```bash
-npm run dev
-```
-
-Buka browser dan akses URL lokal yang tampil di terminal (biasanya `http://localhost:5173`).
+1. Buka dashboard web Proxmox VE Anda (`https://<IP_PROXMOX>:8006`).
+2. Masuk ke menu **Datacenter** > **Permissions** > **API Tokens**.
+3. Klik tombol **Add**:
+   - **User:** Pilih user (contoh: `root@pam` atau user khusus yang Anda buat).
+   - **Token ID:** Masukkan nama token (contoh: `web-mgmt-srv`).
+   - **Privilege Separation:** Hapus centang (uncheck) jika ingin token mewarisi hak akses penuh dari user yang dipilih.
+4. Klik **Add**, lalu simpan **Token ID** dan **Secret** yang muncul (Secret hanya ditampilkan satu kali).
 
 ---
 
-## Build untuk Produksi
+## Panduan Instalasi Lengkap
 
-Untuk mengompilasi frontend menjadi file statis siap deploy:
+### 1. Clone Repository
 
+Buka terminal/PowerShell di komputer Anda, lalu jalankan perintah berikut:
+
+```bash
+git clone https://github.com/USERNAME/proxmox-web-manager.git
+cd proxmox-web-manager
+```
+*(Ganti `USERNAME` dengan username GitHub Anda).*
+
+---
+
+### 2. Setup dan Jalankan Backend
+
+1. Masuk ke direktori `backend`:
+   ```bash
+   cd backend
+   ```
+
+2. Instal seluruh dependensi:
+   ```bash
+   npm install
+   ```
+
+3. Buat file `.env` dari template yang tersedia:
+   - **Di Linux / macOS:**
+     ```bash
+     cp .env.example .env
+     ```
+   - **Di Windows (PowerShell / CMD):**
+     ```powershell
+     copy .env.example .env
+     ```
+
+4. Buka file `.env` menggunakan text editor pilihan Anda (VS Code, Notepad, atau nano), lalu sesuaikan nilainya:
+   ```env
+   PORT=5000
+   PVE_URL=https://192.168.1.100:8006
+   PVE_TOKEN=PVEAPIToken=root@pam!web-mgmt-srv=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+   ```
+   - Ganti `192.168.1.100:8006` dengan alamat IP dan port Proxmox VE Anda.
+   - Ganti `PVE_TOKEN` dengan format token lengkap yang Anda dapatkan pada langkah persiapan.
+
+5. Jalankan server backend:
+   ```bash
+   # Mode pengembangan (dengan auto-restart jika ada perubahan file)
+   npm run dev
+
+   # Atau mode standar
+   npm start
+   ```
+   Jika berhasil, terminal akan menampilkan log bahwa server berjalan di `http://localhost:5000`.
+
+---
+
+### 3. Setup dan Jalankan Frontend
+
+1. Buka **jendela terminal / tab baru**, lalu masuk ke direktori `frontend`:
+   ```bash
+   cd proxmox-web-manager/frontend
+   ```
+
+2. Instal dependensi frontend:
+   ```bash
+   npm install
+   ```
+
+3. Jalankan server development Vite:
+   ```bash
+   npm run dev
+   ```
+
+4. Terminal akan menampilkan tautan lokal aplikasi (biasanya `http://localhost:5173`). Buka URL tersebut di browser Anda.
+
+---
+
+## Panduan Penggunaan
+
+1. **Halaman Login & Koneksi:**
+   - Masukkan alamat host backend pada kolom server (misalnya `localhost:5000` atau IP lokal perangkat backend seperti `192.168.1.50:5000`).
+   - Masukkan kredensial Anda untuk masuk ke dashboard.
+2. **Dashboard Resource:**
+   - Melihat ringkasan resource cluster: CPU Usage, RAM Usage, Storage Pool, dan status node.
+3. **Manajemen Virtual Machine & Container:**
+   - Klik pada VM atau LXC untuk melihat detail spesifikasi.
+   - Gunakan tombol kontrol daya: **Start**, **Shutdown**, **Stop**, atau **Reboot**.
+4. **Membuka Remote Konsol:**
+   - Klik tombol **Console (noVNC)** untuk membuka tampilan desktop virtual mesin.
+   - Klik tombol **Terminal (xterm)** untuk membuka sesi shell berbasis teks.
+   - Anda dapat membuka beberapa konsol sekaligus dalam workspace floating window.
+
+---
+
+## Deployment Produksi (Opsional)
+
+Jika ingin menjalankan aplikasi secara permanen pada server atau mini PC:
+
+### 1. Build Frontend
+Kompilasi kode frontend menjadi file statis:
 ```bash
 cd frontend
 npm run build
 ```
+File hasil build akan berada di direktori `frontend/dist`. Anda dapat menyajikannya menggunakan Nginx, Caddy, atau web server statis lainnya.
 
-Hasil build akan tersimpan di dalam folder `frontend/dist`.
+### 2. Jalankan Backend dengan Process Manager (PM2)
+Agar backend tetap berjalan di latar belakang dan otomatis menyala saat sistem reboot:
+```bash
+# Instal PM2 secara global
+npm install -g pm2
+
+# Masuk ke folder backend dan jalankan proses
+cd backend
+pm2 start server.js --name "proxmox-backend"
+
+# Simpan daftar proses agar otomatis start saat booting
+pm2 save
+pm2 startup
+```
+
+---
+
+## Troubleshooting & Solusi
+
+1. **Konsol noVNC atau Terminal xterm Tidak Terhubung:**
+   - Pastikan port `5000` tidak diblokir oleh firewall lokal perangkat backend.
+   - Pastikan backend dapat mengakses port `8006` Proxmox tanpa terhalang firewall jaringan.
+2. **Error `SELF_SIGNED_CERT_IN_CHAIN` / Masalah Sertifikat SSL:**
+   - Backend telah dikonfigurasi untuk mengabaikan verifikasi SSL self-signed bawaan Proxmox secara default. Pastikan URL menggunakan protokol `https://`.
+3. **Error 401 Unauthorized atau 403 Forbidden dari API Proxmox:**
+   - Periksa kembali format `PVE_TOKEN` pada file `.env`. Format wajib: `PVEAPIToken=USER@REALM!TOKENID=UUID`.
+   - Pastikan API Token di Proxmox memiliki hak akses yang cukup pada path `/` (contoh: Role `Administrator` atau `PVEVMAdmin`).
+4. **Port Backend Sudah Digunakan (`EADDRINUSE: 5000`):**
+   - Ubah nilai `PORT` di file `backend/.env` (misalnya menjadi `PORT=5001`), lalu sesuaikan alamat server pada halaman login frontend.
 
 ---
 
 ## Keamanan
 
-- Jangan pernah mengunggah file `.env` atau kredensial token Proxmox ke repository publik.
-- File `.gitignore` pada proyek ini telah dikonfigurasi untuk mencegah file kredensial dan folder `node_modules` ikut ter-commit.
-- Sangat disarankan untuk membatasi hak akses Proxmox API Token hanya pada resource yang dibutuhkan (Role: `PVEVMAdmin`, `PVESysAdmin`, atau role kustom dengan hak minimal).
+- **Jaga Kerahasiaan Kredensial:** Jangan pernah membagikan atau mengunggah file `.env` ke publik. File `.gitignore` sudah otomatis mengecualikan file `.env`.
+- **Prinsip Hak Akses Minimal (Least Privilege):** Buat user atau API token khusus dengan hak akses terbatas sesuai kebutuhan daripada menggunakan token tanpa batas.
+- **Jaringan Terisolasi:** Disarankan untuk mengakses aplikasi ini di dalam jaringan lokal (LAN) atau melalui koneksi VPN terenkripsi (misalnya WireGuard atau Tailscale).
 
 ---
 
 ## Lisensi
 
-Proyek ini dibuat untuk keperluan internal dan manajemen infrastruktur mandiri. Silakan gunakan dan sesuaikan sesuai kebutuhan.
-"# proxmox-web-manager" 
+Proyek ini dirilis di bawah lisensi [MIT](https://opensource.org/licenses/MIT). Anda bebas menggunakan, memodifikasi, dan mendistribusikan kode ini sesuai dengan ketentuan lisensi.

@@ -1,0 +1,74 @@
+# ==========================================
+# Environment Variables & Secrets (SENSITIVE)
+# ==========================================
+.env
+.env.*
+!.env.example
+*.env
+*.pem
+*.key
+*.cert
+*.crt
+credentials.json
+
+# ==========================================
+# Dependencies
+# ==========================================
+node_modules/
+*/node_modules/
+.pnp
+.pnp.js
+
+# ==========================================
+# Production & Build Outputs
+# ==========================================
+dist/
+dist-ssr/
+build/
+out/
+.vite/
+*.tsbuildinfo
+
+# ==========================================
+# Logs & Debugging
+# ==========================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==========================================
+# OS & Editor Specific Files
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+[Dd]esktop.ini
+
+# IDEs
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ==========================================
+# Temporary Files & Android/Capacitor leftovers
+# ==========================================
+*.tmp
+*.temp
+scratch/
+*.apk
+*.aab
+.gradle/
+capacitor.config.*
