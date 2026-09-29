@@ -18,7 +18,6 @@ Aplikasi web modern, responsif, dan ringan untuk memonitor serta mengelola infra
 - [Panduan Penggunaan](#panduan-penggunaan)
 - [Deployment Produksi (Opsional)](#deployment-produksi-opsional)
 - [Troubleshooting & Solusi](#troubleshooting--solusi)
-- [Keamanan](#keamanan)
 - [Lisensi](#lisensi)
 
 ---
